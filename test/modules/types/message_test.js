@@ -2,6 +2,7 @@ const { assert } = require('chai');
 const sinon = require('sinon');
 
 const Message = require('../../../js/modules/types/message');
+const { SignalService } = require('../../../ts/protobuf');
 const {
   stringToArrayBuffer,
 } = require('../../../js/modules/string_to_array_buffer');
@@ -191,7 +192,8 @@ describe('Message', () => {
       const input = {
         attachments: [
           {
-            contentType: 'application/json',
+            contentType: 'audio/aac',
+            flags: SignalService.AttachmentPointer.Flags.VOICE_MESSAGE,
             data: stringToArrayBuffer('It’s easy if you try'),
             fileName: 'test\u202Dfig.exe',
             size: 1111,
@@ -202,7 +204,8 @@ describe('Message', () => {
       const expected = {
         attachments: [
           {
-            contentType: 'application/json',
+            contentType: 'audio/aac',
+            flags: 1,
             path: 'abc/abcdefg',
             fileName: 'test\uFFFDfig.exe',
             size: 1111,
@@ -210,7 +213,7 @@ describe('Message', () => {
         ],
         hasAttachments: 1,
         hasVisualMediaAttachments: undefined,
-        hasFileAttachments: 1,
+        hasFileAttachments: undefined,
         schemaVersion: Message.CURRENT_SCHEMA_VERSION,
       };
 

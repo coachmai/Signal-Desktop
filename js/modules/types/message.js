@@ -24,11 +24,19 @@ const PRIVATE = 'private';
 //   - Attachments: Write attachment data to disk and store relative path to it.
 // Version 4
 //   - Quotes: Write thumbnail data to disk and store relative path to it.
-// Version 5
+// Version 5 (deprecated)
 //   - Attachments: Track number and kind of attachments for media gallery
 //     - `hasAttachments?: 1 | 0`
 //     - `hasVisualMediaAttachments?: 1 | undefined` (for media gallery ‘Media’ view)
 //     - `hasFileAttachments?: 1 | undefined` (for media gallery ‘Documents’ view)
+//   - IMPORTANT: Version 6 changes the classification of visual media and files.
+//     Therefore version 5 is considered deprecated. For an easier implementation,
+//     new files have the same classification in version 5 as in version 6.
+// Version 6 (supersedes attachment classification in version 5)
+//   - Attachments: Update classification for:
+//     - `hasVisualMediaAttachments`: Include all images and video regardless of
+//       whether Chromium can render it or not.
+//     - `hasFileAttachments`: Exclude voice messages.
 
 const INITIAL_SCHEMA_VERSION = 0;
 
@@ -205,6 +213,10 @@ const toVersion4 = exports._withSchemaVersion(
   exports._mapQuotedAttachments(Attachment.migrateDataToFileSystem)
 );
 const toVersion5 = exports._withSchemaVersion(5, initializeAttachmentMetadata);
+// IMPORTANT: We’ve updated our definition of `initializeAttachmentMetadata`, so
+// we need to run it again on existing items that have previously been incorrectly
+// classified:
+const toVersion6 = exports._withSchemaVersion(6, initializeAttachmentMetadata);
 
 const VERSIONS = [
   toVersion0,
@@ -213,6 +225,7 @@ const VERSIONS = [
   toVersion3,
   toVersion4,
   toVersion5,
+  toVersion6,
 ];
 exports.CURRENT_SCHEMA_VERSION = VERSIONS.length - 1;
 
